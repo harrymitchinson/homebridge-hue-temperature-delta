@@ -56,6 +56,6 @@ export class HueTemperatureDeltaPlatformAccessory {
   }
 
   handleCurrentTemperatureGet() {
-    return this.delta / 1000;
+    return this.delta / 100;
   }
 }
