@@ -40,7 +40,6 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
-    "eslint-config-prettier": "^9.1.0",
-    "huejay": "^1.9.0"
+    "eslint-config-prettier": "^9.1.0"
   }
 }
