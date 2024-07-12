@@ -9,6 +9,8 @@ export class HueTemperatureDeltaPlatformAccessory {
     private readonly platform: HueTemperatureDeltaHomebridgePlatform,
     private readonly accessory: PlatformAccessory<Context>,
   ) {
+    this.delta = this.accessory.context.initialDelta;
+
     // set accessory information
     this.accessory
       .getService(this.platform.Service.AccessoryInformation)!
@@ -30,8 +32,6 @@ export class HueTemperatureDeltaPlatformAccessory {
       this.platform.Characteristic.Name,
       this.accessory.context.displayName,
     );
-
-    this.delta = this.accessory.context.initialDelta;
 
     this.service
       .getCharacteristic(this.platform.Characteristic.CurrentTemperature)
