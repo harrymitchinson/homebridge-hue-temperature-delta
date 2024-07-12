@@ -16,7 +16,7 @@ This template should be used in conjunction with the [developer documentation](h
 
 ### Clone As Template
 
-Click the link below to create a new GitHub Repository using this template, or click the *Use This Template* button above.
+Click the link below to create a new GitHub Repository using this template, or click the _Use This Template_ button above.
 
 <span align="center">
 
@@ -54,7 +54,7 @@ When you are ready to publish the plugin you should set `private` to false, or r
 Open the [`src/settings.ts`](./src/settings.ts) file and change the default values:
 
 - `PLATFORM_NAME` - Set this to be the name of your platform. This is the name of the platform that users will use to register the plugin in the Homebridge `config.json`.
-- `PLUGIN_NAME` - Set this to be the same name you set in the [`package.json`](./package.json) file. 
+- `PLUGIN_NAME` - Set this to be the same name you set in the [`package.json`](./package.json) file.
 
 Open the [`config.schema.json`](./config.schema.json) file and change the following attribute:
 
@@ -85,6 +85,7 @@ homebridge -D
 ### Watch For Changes and Build Automatically
 
 If you want to have your code compile automatically as you make changes, and restart Homebridge automatically between changes, you first need to add your plugin as a platform in `~/.homebridge/config.json`:
+
 ```
 {
 ...
@@ -152,7 +153,7 @@ If you are publishing a scoped plugin, i.e. `@username/homebridge-xxx` you will 
 
 #### Publishing Beta Versions
 
-You can publish *beta* versions of your plugin for other users to test before you release it to everyone.
+You can publish _beta_ versions of your plugin for other users to test before you release it to everyone.
 
 ```shell
 # create a new pre-release version (eg. 2.1.0-beta.1)
@@ -162,13 +163,14 @@ npm version prepatch --preid beta
 npm publish --tag=beta
 ```
 
-Users can then install the  *beta* version by appending `@beta` to the install command, for example:
+Users can then install the _beta_ version by appending `@beta` to the install command, for example:
 
 ```shell
 sudo npm install -g homebridge-example-plugin@beta
 ```
 
 ### Best Practices
+
 Consider creating your plugin with the [Homebridge Verified](https://github.com/homebridge/verified) criteria in mind. This will help you to create a plugin that is easy to use and works well with Homebridge.
 You can then submit your plugin to the Homebridge Verified list for review.
 The most up-to-date criteria can be found [here](https://github.com/homebridge/verified#requirements).
@@ -187,5 +189,7 @@ For reference, the current criteria are:
 - If the plugin needs to write files to disk (cache, keys, etc.), it must store them inside the Homebridge storage directory.
 
 ### Useful Links
+
 Note these links are here for help but are not supported/verified by the Homebridge team
+
 - [Custom Characteristics](https://github.com/homebridge/homebridge-plugin-template/issues/20)

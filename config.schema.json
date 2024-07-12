@@ -1,16 +1,80 @@
 {
-  "pluginAlias": "ExampleHomebridgePlugin",
-  "pluginType": "platform",
-  "singular": true,
-  "schema": {
-    "type": "object",
-    "properties": {
-      "name": {
-        "title": "Name",
-        "type": "string",
-        "required": true,
-        "default": "Example Dynamic Platform"
-      }
-    }
-  }
+	"pluginAlias": "HueTemperatureDeltaHomebridgePlugin",
+	"pluginType": "platform",
+	"singular": true,
+	"schema": {
+		"properties": {
+			"deltas": {
+				"description": "Deltas",
+				"items": {
+					"properties": {
+						"a": {
+							"description": "Sensor A",
+							"properties": {
+								"id": {
+									"description": "Hue ID of the Sensor",
+									"type": "number"
+								}
+							},
+							"required": ["id"],
+							"type": "object"
+						},
+						"b": {
+							"description": "Sensor B",
+							"properties": {
+								"id": {
+									"description": "Hue ID of the Sensor",
+									"type": "number"
+								}
+							},
+							"required": ["id"],
+							"type": "object"
+						},
+						"displayName": {
+							"description": "The display name for the delta sensor",
+							"type": "string"
+						},
+						"id": {
+							"description": "The unique ID for the delta sensor",
+							"type": "string"
+						},
+						"inverse": {
+							"default": false,
+							"description": "Whether the delta calculation is inverted",
+							"type": "boolean"
+						}
+					},
+					"required": ["a", "b", "displayName", "id", "inverse"],
+					"type": "object"
+				},
+				"type": "array"
+			},
+			"hue": {
+				"description": "Hue",
+				"properties": {
+					"host": {
+						"description": "The host address of the Hue bridge",
+						"type": "string"
+					},
+					"port": {
+						"description": "The port of the Hue bridge",
+						"type": "number"
+					},
+					"username": {
+						"description": "The username for Hue bridge",
+						"type": "string"
+					}
+				},
+				"required": ["host", "username"],
+				"type": "object"
+			},
+			"interval": {
+				"default": 15000,
+				"description": "Polling interval in milliseconds",
+				"type": "number"
+			}
+		},
+		"required": ["deltas", "hue", "interval"],
+		"type": "object"
+	}
 }

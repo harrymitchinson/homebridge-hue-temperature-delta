@@ -1,125 +1,172 @@
-import { API, DynamicPlatformPlugin, Logging, PlatformAccessory, PlatformConfig, Service, Characteristic } from 'homebridge';
+import type {
+	API,
+	DynamicPlatformPlugin,
+	Logging,
+	PlatformAccessory,
+	PlatformConfig,
+	Service,
+	Characteristic
+} from 'homebridge';
+
+import { APIEvent } from 'homebridge';
+
+import * as huejay from 'huejay';
 
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings.js';
-import { ExamplePlatformAccessory } from './platformAccessory.js';
+import { HueTemperatureDeltaPlatformAccessory } from './platformAccessory.js';
+import { Config } from './config.js';
+
+export type Context = {
+	displayName: string;
+	a: huejay.Sensor;
+	b: huejay.Sensor;
+	inverse: boolean;
+};
 
 /**
  * HomebridgePlatform
  * This class is the main constructor for your plugin, this is where you should
  * parse the user config and discover/register accessories with Homebridge.
  */
-export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
-  public readonly Service: typeof Service;
-  public readonly Characteristic: typeof Characteristic;
+export class HueTemperatureDeltaHomebridgePlatform
+	implements DynamicPlatformPlugin
+{
+	public readonly Service: typeof Service;
+	public readonly Characteristic: typeof Characteristic;
+	public readonly config: Config & PlatformConfig;
 
-  // this is used to track restored cached accessories
-  public readonly accessories: PlatformAccessory[] = [];
+	// this is used to track restored cached accessories
+	public readonly accessories: PlatformAccessory<Context>[] = [];
 
-  constructor(
-    public readonly log: Logging,
-    public readonly config: PlatformConfig,
-    public readonly api: API,
-  ) {
-    this.Service = api.hap.Service;
-    this.Characteristic = api.hap.Characteristic;
+	private _hue?: huejay.Client;
+	private async getHueClient(): Promise<huejay.Client> {
+		if (this._hue) {
+			return this._hue;
+		}
+		return await this.initHueClient();
+	}
 
-    this.log.debug('Finished initializing platform:', this.config.name);
+	private async initHueClient(): Promise<huejay.Client> {
+		this.log.debug('Initializing hue client');
+		const client = new huejay.Client({
+			host: this.config.hue.host,
+			port: this.config.hue.port,
+			username: this.config.hue.username
+		});
 
-    // Homebridge 1.8.0 introduced a `log.success` method that can be used to log success messages
-    // For users that are on a version prior to 1.8.0, we need a 'polyfill' for this method
-    if (!log.success) {
-      log.success = log.info;
-    }
+		this.log.debug('Pinging bridge');
+		try {
+			await client.bridge.ping();
+		} catch (err) {
+			this.log.error('Failed to ping bridge:', err);
+			throw err;
+		}
 
-    // When this event is fired it means Homebridge has restored all cached accessories from disk.
-    // Dynamic Platform plugins should only register new accessories after this event was fired,
-    // in order to ensure they weren't added to homebridge already. This event can also be used
-    // to start discovery of new accessories.
-    this.api.on('didFinishLaunching', () => {
-      log.debug('Executed didFinishLaunching callback');
-      // run the method to discover / register your devices as accessories
-      this.discoverDevices();
-    });
-  }
+		this.log.debug('Checking bridge authentication status');
+		try {
+			await client.bridge.isAuthenticated();
+		} catch (err) {
+			this.log.error('Not authenticated with bridge:', err);
+			throw err;
+		}
 
-  /**
-   * This function is invoked when homebridge restores cached accessories from disk at startup.
-   * It should be used to set up event handlers for characteristics and update respective values.
-   */
-  configureAccessory(accessory: PlatformAccessory) {
-    this.log.info('Loading accessory from cache:', accessory.displayName);
+		this._hue = client;
+		return client;
+	}
 
-    // add the restored accessory to the accessories cache, so we can track if it has already been registered
-    this.accessories.push(accessory);
-  }
+	constructor(
+		public readonly log: Logging,
+		config: PlatformConfig,
+		public readonly api: API
+	) {
+		this.config = config as Config & PlatformConfig;
+		this.Service = api.hap.Service;
+		this.Characteristic = api.hap.Characteristic;
 
-  /**
-   * This is an example method showing how to register discovered accessories.
-   * Accessories must only be registered once, previously created accessories
-   * must not be registered again to prevent "duplicate UUID" errors.
-   */
-  discoverDevices() {
+		if (!log.success) {
+			log.success = log.info;
+		}
 
-    // EXAMPLE ONLY
-    // A real plugin you would discover accessories from the local network, cloud services
-    // or a user-defined array in the platform config.
-    const exampleDevices = [
-      {
-        exampleUniqueId: 'ABCD',
-        exampleDisplayName: 'Bedroom',
-      },
-      {
-        exampleUniqueId: 'EFGH',
-        exampleDisplayName: 'Kitchen',
-      },
-    ];
+		this.api.on(APIEvent.DID_FINISH_LAUNCHING, async () => {
+			await this.initHueClient();
+			await this.discoverDevices();
+		});
 
-    // loop over the discovered devices and register each one if it has not already been registered
-    for (const device of exampleDevices) {
+		this.log.debug('Finished initializing platform:', this.config.name);
+	}
 
-      // generate a unique id for the accessory this should be generated from
-      // something globally unique, but constant, for example, the device serial
-      // number or MAC address
-      const uuid = this.api.hap.uuid.generate(device.exampleUniqueId);
+	async getSensor(id: number) {
+		return await this.getHueClient()
+			.then((hue) => hue.sensors.getById(id))
+			.catch((err) => {
+				this.log.warn('Sensor not found:', id, err);
+				return null;
+			});
+	}
 
-      // see if an accessory with the same uuid has already been registered and restored from
-      // the cached devices we stored in the `configureAccessory` method above
-      const existingAccessory = this.accessories.find(accessory => accessory.UUID === uuid);
+	/**
+	 * This function is invoked when homebridge restores cached accessories from disk at startup.
+	 * It should be used to set up event handlers for characteristics and update respective values.
+	 */
+	configureAccessory(accessory: PlatformAccessory<Context>) {
+		this.log.info('Loading accessory from cache:', accessory.displayName);
+		this.accessories.push(accessory);
+	}
 
-      if (existingAccessory) {
-        // the accessory already exists
-        this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName);
+	async discoverDevices() {
+		this.log.debug('Discovering devices:', this.config.name);
 
-        // if you need to update the accessory.context then you should run `api.updatePlatformAccessories`. e.g.:
-        // existingAccessory.context.device = device;
-        // this.api.updatePlatformAccessories([existingAccessory]);
+		// loop over the discovered devices and register each one if it has not already been registered
+		for (const device of this.config.deltas) {
+			const [a, b] = await Promise.all([
+				this.getSensor(device.a.id),
+				this.getSensor(device.b.id)
+			]);
 
-        // create the accessory handler for the restored accessory
-        // this is imported from `platformAccessory.ts`
-        new ExamplePlatformAccessory(this, existingAccessory);
+			if (a == null || b == null) {
+				this.log.warn(
+					'Skipping delta as one or more sensor(s) not found:',
+					device.id
+				);
+				continue;
+			}
 
-        // it is possible to remove platform accessories at any time using `api.unregisterPlatformAccessories`, e.g.:
-        // remove platform accessories when no longer present
-        // this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [existingAccessory]);
-        // this.log.info('Removing existing accessory from cache:', existingAccessory.displayName);
-      } else {
-        // the accessory does not yet exist, so we need to create it
-        this.log.info('Adding new accessory:', device.exampleDisplayName);
+			// generate a unique id for the accessory this should be generated from
+			// something globally unique, but constant, for example, the device serial
+			// number or MAC address
+			const uuid = this.api.hap.uuid.generate(device.id);
 
-        // create a new accessory
-        const accessory = new this.api.platformAccessory(device.exampleDisplayName, uuid);
+			// see if an accessory with the same uuid has already been registered and restored from
+			// the cached devices we stored in the `configureAccessory` method above
+			const existingAccessory = this.accessories.find(
+				(accessory) => accessory.UUID === uuid
+			);
 
-        // store a copy of the device object in the `accessory.context`
-        // the `context` property can be used to store any data about the accessory you may need
-        accessory.context.device = device;
+			if (existingAccessory) {
+				this.log.info(
+					'Restoring existing accessory from cache:',
+					existingAccessory.displayName
+				);
+				new HueTemperatureDeltaPlatformAccessory(this, existingAccessory);
+			} else {
+				this.log.info('Adding new accessory:', device.displayName);
+				const accessory = new this.api.platformAccessory<Context>(
+					device.displayName,
+					uuid
+				);
 
-        // create the accessory handler for the newly create accessory
-        // this is imported from `platformAccessory.ts`
-        new ExamplePlatformAccessory(this, accessory);
+				accessory.context = {
+					displayName: device.displayName,
+					a,
+					b,
+					inverse: device.inverse
+				};
 
-        // link the accessory to your platform
-        this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
-      }
-    }
-  }
+				new HueTemperatureDeltaPlatformAccessory(this, accessory);
+				this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [
+					accessory
+				]);
+			}
+		}
+	}
 }
