@@ -36,8 +36,9 @@ export type Hue = {
   host: string;
   /**
    * The port of the Hue bridge
+   * @default 443
    */
-  port?: number;
+  port: number;
   /**
    * The username for Hue bridge
    */

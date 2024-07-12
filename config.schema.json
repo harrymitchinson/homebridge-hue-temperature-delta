@@ -58,7 +58,8 @@
           },
           "port": {
             "description": "The port of the Hue bridge",
-            "type": "number"
+            "type": "number",
+            "default": 443
           },
           "username": {
             "description": "The username for Hue bridge",
