@@ -1,8 +1,8 @@
 export type Sensor = {
   /**
-   * Hue ID of the Sensor
+   * Mac address of the sensor
    */
-  id: number;
+  mac: string;
 };
 
 export type Delta = {

@@ -10,16 +10,15 @@ import type {
 
 import { APIEvent } from 'homebridge';
 
-import huejay from 'huejay';
-
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings.js';
 import { HueTemperatureDeltaPlatformAccessory } from './platformAccessory.js';
 import { Config } from './config.js';
+import { HueClient, Sensor } from './hue.js';
 
 export type Context = {
   displayName: string;
-  a: huejay.Sensor;
-  b: huejay.Sensor;
+  a: Sensor;
+  b: Sensor;
   inverse: boolean;
 };
 
@@ -38,33 +37,25 @@ export class HueTemperatureDeltaHomebridgePlatform
   // this is used to track restored cached accessories
   public readonly accessories: PlatformAccessory<Context>[] = [];
 
-  private _hue?: huejay.Client;
-  private async getHueClient(): Promise<huejay.Client> {
+  private _hue?: HueClient;
+  private async getHueClient(): Promise<HueClient> {
     if (this._hue) {
       return this._hue;
     }
     return await this.initHueClient();
   }
 
-  private async initHueClient(): Promise<huejay.Client> {
+  private async initHueClient(): Promise<HueClient> {
     this.log.debug('Initializing hue client');
-    const client = new huejay.Client({
+    const client = new HueClient({
       host: this.config.hue.host,
       port: this.config.hue.port,
       username: this.config.hue.username,
     });
 
-    // this.log.debug('Pinging bridge');
-    // try {
-    //   await client.bridge.ping();
-    // } catch (err) {
-    //   this.log.error('Failed to ping bridge:', err);
-    //   throw err;
-    // }
-
     this.log.debug('Checking bridge authentication status');
     try {
-      await client.bridge.isAuthenticated();
+      await client.ping();
     } catch (err) {
       this.log.error('Not authenticated with bridge:', err);
       throw err;
@@ -99,11 +90,11 @@ export class HueTemperatureDeltaHomebridgePlatform
     this.log.debug('Finished initializing platform:', this.config.name);
   }
 
-  async getSensor(id: number) {
+  async getSensor(id: string) {
     return await this.getHueClient()
-      .then((hue) => hue.sensors.getById(id))
+      .then((hue) => hue.getSensorById(id))
       .catch((err) => {
-        this.log.warn('Sensor not found:', id, err);
+        this.log.warn(`Failed to get sensor (${id}):`, err);
         return null;
       });
   }
@@ -120,12 +111,23 @@ export class HueTemperatureDeltaHomebridgePlatform
   async discoverDevices() {
     this.log.debug('Discovering devices:', this.config.name);
 
+    const hue = await this.getHueClient();
+
+    const temperatureSensors = await hue
+      .getSensors()
+      .then((sensors) =>
+        sensors.filter((sensor) => sensor.type == 'ZLLTemperature'),
+      );
+
     // loop over the discovered devices and register each one if it has not already been registered
     for (const device of this.config.deltas) {
-      const [a, b] = await Promise.all([
-        this.getSensor(device.a.id),
-        this.getSensor(device.b.id),
-      ]);
+      const a = temperatureSensors.find((sensor) =>
+        sensor.uniqueid.startsWith(device.a.mac),
+      );
+
+      const b = temperatureSensors.find((sensor) =>
+        sensor.uniqueid.startsWith(device.b.mac),
+      );
 
       if (a == null || b == null) {
         this.log.warn(

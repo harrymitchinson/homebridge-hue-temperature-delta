@@ -11,23 +11,23 @@
             "a": {
               "description": "Sensor A",
               "properties": {
-                "id": {
-                  "description": "Hue ID of the Sensor",
-                  "type": "number"
+                "mac": {
+                  "description": "Mac address of the sensor",
+                  "type": "string"
                 }
               },
-              "required": ["id"],
+              "required": ["mac"],
               "type": "object"
             },
             "b": {
               "description": "Sensor B",
               "properties": {
-                "id": {
-                  "description": "Hue ID of the Sensor",
-                  "type": "number"
+                "mac": {
+                  "description": "Mac address of the sensor",
+                  "type": "string"
                 }
               },
-              "required": ["id"],
+              "required": ["mac"],
               "type": "object"
             },
             "displayName": {
@@ -57,16 +57,16 @@
             "type": "string"
           },
           "port": {
+            "default": 443,
             "description": "The port of the Hue bridge",
-            "type": "number",
-            "default": 443
+            "type": "number"
           },
           "username": {
             "description": "The username for Hue bridge",
             "type": "string"
           }
         },
-        "required": ["host", "username"],
+        "required": ["host", "port", "username"],
         "type": "object"
       },
       "interval": {

@@ -7,19 +7,19 @@ export class HueTemperatureDeltaPlatformAccessory {
 
   constructor(
     private readonly platform: HueTemperatureDeltaHomebridgePlatform,
-    private readonly accessory: PlatformAccessory<Context>
+    private readonly accessory: PlatformAccessory<Context>,
   ) {
     // set accessory information
     this.accessory
       .getService(this.platform.Service.AccessoryInformation)!
       .setCharacteristic(
         this.platform.Characteristic.Manufacturer,
-        'Default-Manufacturer'
+        'Default-Manufacturer',
       )
       .setCharacteristic(this.platform.Characteristic.Model, 'Default-Model')
       .setCharacteristic(
         this.platform.Characteristic.SerialNumber,
-        'Default-Serial'
+        'Default-Serial',
       );
 
     this.service =
@@ -28,7 +28,7 @@ export class HueTemperatureDeltaPlatformAccessory {
 
     this.service.setCharacteristic(
       this.platform.Characteristic.Name,
-      this.accessory.context.displayName
+      this.accessory.context.displayName,
     );
 
     this.service
@@ -38,7 +38,7 @@ export class HueTemperatureDeltaPlatformAccessory {
     setInterval(async () => {
       const [a, b] = await Promise.all([
         this.platform.getSensor(this.accessory.context.a.id),
-        this.platform.getSensor(this.accessory.context.b.id)
+        this.platform.getSensor(this.accessory.context.b.id),
       ]);
       if (a == null || b == null) {
         return;
