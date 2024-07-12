@@ -3,7 +3,7 @@ import { Context, HueTemperatureDeltaHomebridgePlatform } from './platform.js';
 
 export class HueTemperatureDeltaPlatformAccessory {
   private service: Service;
-  private delta = 0;
+  private delta: number;
 
   constructor(
     private readonly platform: HueTemperatureDeltaHomebridgePlatform,
@@ -14,12 +14,12 @@ export class HueTemperatureDeltaPlatformAccessory {
       .getService(this.platform.Service.AccessoryInformation)!
       .setCharacteristic(
         this.platform.Characteristic.Manufacturer,
-        'Default-Manufacturer',
+        'Hue Temperature Delta',
       )
-      .setCharacteristic(this.platform.Characteristic.Model, 'Default-Model')
+      .setCharacteristic(this.platform.Characteristic.Model, 'v0')
       .setCharacteristic(
         this.platform.Characteristic.SerialNumber,
-        'Default-Serial',
+        '00000000-0000-0000-0000-000000000000',
       );
 
     this.service =
@@ -31,7 +31,7 @@ export class HueTemperatureDeltaPlatformAccessory {
       this.accessory.context.displayName,
     );
 
-    this.delta = this.accessory.context.delta;
+    this.delta = this.accessory.context.initialDelta;
 
     this.service
       .getCharacteristic(this.platform.Characteristic.CurrentTemperature)
@@ -52,15 +52,15 @@ export class HueTemperatureDeltaPlatformAccessory {
       } else {
         delta = (a.state.temperature - b.state.temperature) / 100;
       }
-      this.accessory.context.delta = delta;
+      this.delta = delta;
 
       this.platform.log.debug('Sensor A:', a.state.temperature);
       this.platform.log.debug('Sensor B:', b.state.temperature);
-      this.platform.log.debug('Delta:', delta);
+      this.platform.log.debug('Delta:', this.delta);
     }, this.platform.config.interval);
   }
 
   handleCurrentTemperatureGet() {
-    return this.accessory.context.delta;
+    return this.delta;
   }
 }

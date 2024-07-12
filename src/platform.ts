@@ -20,7 +20,7 @@ export type Context = {
   a: Sensor;
   b: Sensor;
   inverse: boolean;
-  delta: number;
+  initialDelta: number;
 };
 
 /**
@@ -174,7 +174,7 @@ export class HueTemperatureDeltaHomebridgePlatform
           a,
           b,
           inverse: device.inverse,
-          delta,
+          initialDelta: delta,
         };
 
         new HueTemperatureDeltaPlatformAccessory(this, accessory);
