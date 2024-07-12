@@ -44,6 +44,9 @@ export class HueTemperatureDeltaPlatformAccessory {
         return;
       }
 
+      this.platform.log('Sensor A:', a.state.temperature);
+      this.platform.log('Sensor B:', b.state.temperature);
+
       if (this.accessory.context.inverse) {
         this.delta = b.state.temperature - a.state.temperature;
       } else {
@@ -53,6 +56,6 @@ export class HueTemperatureDeltaPlatformAccessory {
   }
 
   handleCurrentTemperatureGet() {
-    return this.delta;
+    return this.delta / 1000;
   }
 }
