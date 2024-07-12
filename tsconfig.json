@@ -1,17 +1,17 @@
 {
-	"compilerOptions": {
-		"allowSyntheticDefaultImports": true,
-		"declaration": true,
-		"esModuleInterop": true,
-		"forceConsistentCasingInFileNames": true,
-		"outDir": "dist",
-		"rootDir": "src",
-		"lib": ["DOM", "ESNext"],
-		"module": "ESNext",
-		"moduleResolution": "Node",
-		"sourceMap": true,
-		"strict": true,
-		"target": "ESNext"
-	},
-	"include": ["eslint.config.mjs", "homebridge-ui", "src"]
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "lib": ["DOM", "ESNext"],
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "sourceMap": true,
+    "strict": true,
+    "target": "ESNext"
+  },
+  "include": ["eslint.config.mjs", "homebridge-ui", "src"]
 }
