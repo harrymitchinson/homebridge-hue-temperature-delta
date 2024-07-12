@@ -44,18 +44,19 @@ export class HueTemperatureDeltaPlatformAccessory {
         return;
       }
 
+      if (this.accessory.context.inverse) {
+        this.delta = (b.state.temperature - a.state.temperature) / 100;
+      } else {
+        this.delta = (a.state.temperature - b.state.temperature) / 100;
+      }
+
       this.platform.log('Sensor A:', a.state.temperature);
       this.platform.log('Sensor B:', b.state.temperature);
-
-      if (this.accessory.context.inverse) {
-        this.delta = b.state.temperature - a.state.temperature;
-      } else {
-        this.delta = a.state.temperature - b.state.temperature;
-      }
+      this.platform.log('Delta:', this.delta);
     }, this.platform.config.interval);
   }
 
   handleCurrentTemperatureGet() {
-    return this.delta / 100;
+    return this.delta;
   }
 }
