@@ -54,13 +54,13 @@ export class HueTemperatureDeltaHomebridgePlatform
       username: this.config.hue.username,
     });
 
-    this.log.debug('Pinging bridge');
-    try {
-      await client.bridge.ping();
-    } catch (err) {
-      this.log.error('Failed to ping bridge:', err);
-      throw err;
-    }
+    // this.log.debug('Pinging bridge');
+    // try {
+    //   await client.bridge.ping();
+    // } catch (err) {
+    //   this.log.error('Failed to ping bridge:', err);
+    //   throw err;
+    // }
 
     this.log.debug('Checking bridge authentication status');
     try {
@@ -88,7 +88,11 @@ export class HueTemperatureDeltaHomebridgePlatform
     }
 
     this.api.on(APIEvent.DID_FINISH_LAUNCHING, async () => {
-      await this.initHueClient();
+      try {
+        await this.initHueClient();
+      } catch (err) {
+        return;
+      }
       await this.discoverDevices();
     });
 
