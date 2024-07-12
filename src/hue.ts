@@ -18,7 +18,7 @@ export class HueClient {
   private username: string;
 
   constructor({ host, port, username }: ClientOptions) {
-    this.baseUrl = `${host}:${port}`;
+    this.baseUrl = `https://${host}:${port}`;
     this.username = username;
   }
 
