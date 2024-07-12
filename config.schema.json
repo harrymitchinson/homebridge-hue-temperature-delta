@@ -1,5 +1,5 @@
 {
-  "pluginAlias": "hue-temperature-delta",
+  "pluginAlias": "HueTemperatureDeltaHomebridgePlugin",
   "pluginType": "platform",
   "singular": true,
   "schema": {
