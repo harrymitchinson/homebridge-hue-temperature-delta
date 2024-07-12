@@ -50,7 +50,7 @@ export class HueTemperatureDeltaHomebridgePlatform
     this.log.debug('Initializing hue client');
     const client = new huejay.Client({
       host: this.config.hue.host,
-      port: this.config.hue.port,
+      port: this.config.hue.port ?? undefined,
       username: this.config.hue.username,
     });
 
