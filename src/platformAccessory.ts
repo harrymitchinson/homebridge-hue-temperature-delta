@@ -31,6 +31,8 @@ export class HueTemperatureDeltaPlatformAccessory {
       this.accessory.context.displayName,
     );
 
+    this.delta = this.accessory.context.delta;
+
     this.service
       .getCharacteristic(this.platform.Characteristic.CurrentTemperature)
       .onGet(this.handleCurrentTemperatureGet.bind(this));
@@ -44,19 +46,21 @@ export class HueTemperatureDeltaPlatformAccessory {
         return;
       }
 
+      let delta: number;
       if (this.accessory.context.inverse) {
-        this.delta = (b.state.temperature - a.state.temperature) / 100;
+        delta = (b.state.temperature - a.state.temperature) / 100;
       } else {
-        this.delta = (a.state.temperature - b.state.temperature) / 100;
+        delta = (a.state.temperature - b.state.temperature) / 100;
       }
+      this.accessory.context.delta = delta;
 
       this.platform.log.debug('Sensor A:', a.state.temperature);
       this.platform.log.debug('Sensor B:', b.state.temperature);
-      this.platform.log.debug('Delta:', this.delta);
+      this.platform.log.debug('Delta:', delta);
     }, this.platform.config.interval);
   }
 
   handleCurrentTemperatureGet() {
-    return this.delta;
+    return this.accessory.context.delta;
   }
 }

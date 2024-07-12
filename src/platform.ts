@@ -20,6 +20,7 @@ export type Context = {
   a: Sensor;
   b: Sensor;
   inverse: boolean;
+  delta: number;
 };
 
 /**
@@ -161,11 +162,19 @@ export class HueTemperatureDeltaHomebridgePlatform
           uuid,
         );
 
+        let delta: number;
+        if (device.inverse) {
+          delta = (b.state.temperature - a.state.temperature) / 100;
+        } else {
+          delta = (a.state.temperature - b.state.temperature) / 100;
+        }
+
         accessory.context = {
           displayName: device.displayName,
           a,
           b,
           inverse: device.inverse,
+          delta,
         };
 
         new HueTemperatureDeltaPlatformAccessory(this, accessory);
