@@ -50,9 +50,9 @@ export class HueTemperatureDeltaPlatformAccessory {
         this.delta = (a.state.temperature - b.state.temperature) / 100;
       }
 
-      this.platform.log('Sensor A:', a.state.temperature);
-      this.platform.log('Sensor B:', b.state.temperature);
-      this.platform.log('Delta:', this.delta);
+      this.platform.log.debug('Sensor A:', a.state.temperature);
+      this.platform.log.debug('Sensor B:', b.state.temperature);
+      this.platform.log.debug('Delta:', this.delta);
     }, this.platform.config.interval);
   }
 
