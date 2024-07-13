@@ -6,23 +6,28 @@
 
 <span align="center">
 
-# Homebridge Platform Plugin Template
+# Homebridge Hue Temperature Delta
 
 </span>
 
-This is a template Homebridge dynamic platform plugin and can be used as a base to help you get started developing your own plugin.
+This is Homebridge plugin for calculating the delta between two Hue temperature sensors. It creates a new temperature device for each delta. My usage for this was to be able to display the temeperature difference between an interior and exterior sensor, but there could be other use cases.
 
-This template should be used in conjunction with the [developer documentation](https://developers.homebridge.io/). A full list of all supported service types, and their characteristics is available on this site.
+It currently only supports sensors with type `ZLLTemperature`.
 
-### Clone As Template
+You'll need the following to add a delta device successfully
 
-Click the link below to create a new GitHub Repository using this template, or click the _Use This Template_ button above.
+- The IP address of your Hue bridge.
+- A username (token) on your Hue bridge.
 
-<span align="center">
+You can follow the guide [here](https://developers.meethue.com/develop/get-started-2/) for these.
 
-### [Create New Repository From Template](https://github.com/homebridge/homebridge-plugin-template/generate)
+Once you have these, you will need to find the MAC addresses of your Hue sensors. These can be found by querying your Bridge API.
 
-</span>
+```sh
+curl http://$BRIDGE_IP/api/$USERNAME/sensors
+```
+
+You should note that Hue motion detectors (what I'm using) are technically 3 sensors, motion, light and temperature. They share the same MAC address which can be found in the first part of the `uniqueid` field of the sensor.
 
 ### Setup Development Environment
 

@@ -1,8 +1,7 @@
 {
-  "private": true,
   "displayName": "Hue Temperature Delta",
   "name": "homebridge-hue-temperature-delta",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Homebridge plugin for temperature differences between Hue sensors.",
   "license": "Apache-2.0",
   "type": "module",
@@ -37,9 +36,8 @@
     "nodemon": "^3.1.2",
     "rimraf": "^5.0.7",
     "ts-node": "^10.9.2",
-    "typescript": "^5.4.5"
-  },
-  "dependencies": {
+    "typescript": "^5.4.5",
     "eslint-config-prettier": "^9.1.0"
-  }
+  },
+  "dependencies": {}
 }
